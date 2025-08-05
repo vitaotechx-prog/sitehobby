@@ -11,17 +11,25 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  // NOVO: Função para buscar o perfil que pode ser chamada de qualquer lugar
   const fetchProfile = async (currentUser) => {
-    if (currentUser) {
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('full_name, avatar_url')
-        .eq('id', currentUser.id)
-        .single();
-      setProfile(profileData);
-    }
-  };
+      if (currentUser) {
+        const { data: profileData, error } = await supabase
+          .from('profiles')
+          .select('full_name, avatar_url')
+          .eq('id', currentUser.id)
+          .single();
+        
+        if (error) {
+            console.error("Erro ao buscar perfil no context:", error);
+            setProfile(null); // Limpa o perfil em caso de erro
+            return null;
+        }
+
+        setProfile(profileData); // Atualiza o estado global
+        return profileData;      // Retorna os dados para quem chamou
+      }
+      return null;
+    };
 
   useEffect(() => {
     const fetchSessionAndProfile = async () => {

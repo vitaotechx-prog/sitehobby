@@ -1,71 +1,98 @@
-import Layout from '../Layout'; // Importe o Layout no topo
+import Layout from '../Layout';
 import { useState, useEffect } from 'react';
-import { useAuth ,fetchProfile  } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/router';
-import { supabase } from '@/lib/supabaseClient'; // Importe o cliente Supabase
+import { supabase } from '@/lib/supabaseClient'
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils'; // Importe o utilitário cn
+
+// Lista de avatares que você colocou na pasta public/avatars
+const availableAvatars = [
+    '/avatars/avatar1.png',
+    '/avatars/avatar2.png',
+    '/avatars/avatar3.png',
+    '/avatars/avatar4.png',
+    '/avatars/avatar5.png',
+    '/avatars/avatar6.png',
+    '/avatars/avatar7.png',
+    '/avatars/avatar8.png',
+    '/avatars/avatar9.png',
+    '/avatars/avatar10.png',
+    '/avatars/avatar11.png',
+    '/avatars/avatar12.png',
+    '/avatars/avatar13.png',
+    '/avatars/avatar14.png',
+    '/avatars/avatar15.png',
+    '/avatars/avatar16.png',
+    '/avatars/avatar17.png',
+];
+
 
 export default function ProfilePage() {
-    const { user, fetchProfile } = useAuth();
+    // 2. Extraia a função `fetchProfile` do contexto.
+    const { user, profile, fetchProfile } = useAuth();
     const router = useRouter();
 
     const [loading, setLoading] = useState(true);
     const [fullName, setFullName] = useState('');
+    const [avatarUrl, setAvatarUrl] = useState(''); // NOVO: Estado para o avatar
     const [message, setMessage] = useState('');
 
-    // Efeito para proteger a rota e buscar dados
     useEffect(() => {
         if (!user) {
-            router.push('/Login'); // Redireciona se não estiver logado
+            router.push('/Login');
             return;
         }
 
-       setLoading(true);
-        // Busca os dados do perfil diretamente do Supabase,
-        // o cliente já está autenticado.
-        supabase
-            .from('profiles')
-            .select('full_name')
-            .eq('id', user.id)
-            .single()
-            .then(({ data, error }) => {
-                if (error) {
-                    console.warn('Erro ao buscar perfil:', error);
-                } else if (data) {
-                    setFullName(data.full_name || '');
-                }
-                setLoading(false);
-            });
-    }, [user, router]);
+        // Usamos os dados do 'profile' do contexto para carregar o estado inicial
+        // Isto evita uma chamada extra à base de dados no carregamento da página
+        if (profile) {
+            setFullName(profile.full_name || '');
+            setAvatarUrl(profile.avatar_url || '');
+        }
+        setLoading(false);
+
+    }, [user, profile, router]);
 
     const handleUpdateProfile = async (e) => {
         e.preventDefault();
         setMessage('');
 
+        // Prepara os dados para atualização
+        const updates = {
+            full_name: fullName,
+            avatar_url: avatarUrl, // Adiciona o avatar_url
+            updated_at: new Date(),
+        };
+
         const { error } = await supabase
             .from('profiles')
-            .update({ full_name: fullName, updated_at: new Date() })
+            .update(updates)
             .eq('id', user.id);
 
         if (error) {
             setMessage(`Erro ao atualizar: ${error.message}`);
-            // Se o erro indicar uma violação de chave estrangeira (usuário não existe)
-            if (error.code === '23503') { 
-                setMessage('Seu usuário não foi encontrado. Deslogando...');
-                setTimeout(() => signOut(), 2000); // Força o logout
-            }
         } else {
             setMessage('Perfil atualizado com sucesso!');
-            await fetchProfile(user); // <<--- CHAME A FUNÇÃO AQUI
+            // AQUI ESTÁ A MUDANÇA
+            // Forçamos a busca e esperamos o retorno dos novos dados.
+            const updatedProfile = await fetchProfile(user);
+            if (updatedProfile) {
+                // Sincronizamos o estado local com os novos dados do contexto
+                setFullName(updatedProfile.full_name || '');
+                setAvatarUrl(updatedProfile.avatar_url || '');
+            }
         }
-    };
-
-    if (!user || loading) {
-        return (
+        setLoading(false); // Remove o loading do botão
+    }
+    
+    // O resto da lógica de loading e o return continuam...
+    if (loading) {
+      return (
             <div className="flex items-center justify-center h-screen">
                 <Loader2 className="w-12 h-12 animate-spin text-blue-600" />
             </div>
@@ -85,6 +112,32 @@ export default function ProfilePage() {
                 <div>
                     <Label htmlFor="fullName">Nome Social</Label>
                     <Input id="fullName" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+                </div>
+                <div>
+                    <Label>Avatar</Label>
+                    <div className="mt-2 flex flex-wrap items-center gap-4">
+                        {availableAvatars.map((url) => (
+                            <button
+                                type="button"
+                                key={url}
+                                onClick={() => setAvatarUrl(url)}
+                                // O botão agora é um círculo um pouco maior que a imagem para dar espaço ao "ring"
+                                className={cn(
+                                    'rounded-full p-1 transition-all duration-200',
+                                    avatarUrl === url
+                                        ? 'ring-2 ring-offset-2 ring-blue-500' // O anel de seleção
+                                        : ''
+                                )}
+                            >
+                                {/* AQUI ESTÁ A MUDANÇA PRINCIPAL: Tamanho explícito na imagem */}
+                                <img
+                                    src={url}
+                                    alt={`Avatar ${url}`}
+                                    className="h-20 w-20 rounded-full object-cover transition-transform duration-200 hover:scale-110"
+                                />
+                            </button>
+                        ))}
+                    </div>
                 </div>
                 <Button type="submit">Salvar Alterações</Button>
             </form>

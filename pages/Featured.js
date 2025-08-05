@@ -45,10 +45,10 @@ export default function Featured() {
                 className="text-center mb-12"
             >
                 <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
-                    Produtos Recentes
+                    Produtos em Destaques
                 </h1>
                 <p className="text-xl text-gray-600">
-                    As ofertas mais novas e atualizadas
+                    As melhores ofertas do dia
                 </p>
             </motion.div>
 
@@ -79,7 +79,7 @@ export default function Featured() {
                 >
                     <Star className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                        Nenhum produto recente
+                        Nenhum produto em destaque
                     </h3>
                     <p className="text-gray-600">
                         Em breve teremos novos produtos aqui!

@@ -12,11 +12,6 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Método não permitido' });
   }
 
-  const authToken = req.headers.authorization;
-  if (authToken !== `Bearer ${process.env.BOT_SECRET_TOKEN}`) {
-    return res.status(401).json({ error: 'Acesso não autorizado' });
-  }
-
   // O productData agora inclui o 'category_id'
   const productData = req.body;
 
@@ -33,9 +28,7 @@ export default async function handler(req, res) {
     if (insertError) {
       throw insertError;
     }
-
-    // ... (resto do seu código de notificação de alerta continua igual) ...
-
+   
     return res.status(201).json({ message: 'Produto criado com sucesso!', product: newProductData });
 
   } catch (error) {

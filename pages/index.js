@@ -1,21 +1,17 @@
-import Layout from '../Layout';
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import ProductCard from "../components/ProductCard";
 import FilterTabs from "../components/FiltersTabs";
 import CommunityLinks from "../components/CommunityLinks";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Search, Loader2, TrendingUp, Zap } from "lucide-react";
+import { Search, Loader2, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from '@/lib/supabaseClient';
+import Layout from '../Layout'; // Importe o Layout
 
 // 1. BUSCA DE DADOS NO SERVIDOR (AGORA SEM CACHE)
 
 export async function getStaticProps() {
   const { data: products, error } = await supabase
     .from('products')
-    // CORREÇÃO: A sintaxe para buscar dados de uma tabela relacionada
-    // através de uma chave estrangeira é esta:
     .select('*, categories(id, name)') 
     .order('created_at', { ascending: false });
 
@@ -35,54 +31,52 @@ export async function getStaticProps() {
 // 2. COMPONENTE DA PÁGINA
 // Ele recebe 'initialProducts' como uma propriedade.
 export default function Home({ initialProducts }) {
-    // A lista de produtos agora vem das props, não é mais buscada no cliente
-    const [filteredProducts, setFilteredProducts] = useState(initialProducts);
-    
-    // O resto dos estados para os filtros continua o mesmo
+    // 1. O nome do estado agora reflete melhor seu propósito.
+    const [products, setProducts] = useState(initialProducts);
+    const [loading, setLoading] = useState(false); // Estado para feedback de carregamento
+
     const [activeFilter, setActiveFilter] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
 
-    // 3. LÓGICA DE FILTROS (NO NAVEGADOR)
-    // Este useEffect agora roda apenas para filtrar a lista que já temos.
+    // 2. Este useEffect agora ORQUESTRA as chamadas à API.
     useEffect(() => {
-        let filtered = [...initialProducts];
+        const fetchFilteredProducts = async () => {
+            setLoading(true);
 
-        // Filtro por tipo (Destaques, Cupons, etc.)
-        if (activeFilter !== "all") {
-             switch (activeFilter) {
-                case "featured":
-                    filtered = filtered.filter(p => p.is_featured);
-                    break;
-                case "coupons":
-                    filtered = filtered.filter(p => p.has_coupon);
-                    break;
-                case "alerts":
-                    filtered = filtered.filter(p => p.is_alert);
-                    break;
+            // Construímos a URL da API com os parâmetros corretos.
+            const params = new URLSearchParams();
+            if (activeFilter !== 'all') {
+                params.append('filter', activeFilter);
             }
-        }
-        // Filtro por busca de texto
-        if (searchQuery.trim()) {
-            const query = searchQuery.toLowerCase().trim();
-            filtered = filtered.filter(p =>
-                p.name.toLowerCase().includes(query)
-            );
-        }
+            if (searchQuery.trim()) {
+                params.append('q', searchQuery.trim());
+            }
 
-        setFilteredProducts(filtered);
+            try {
+                const response = await fetch(`/api/products?${params.toString()}`);
+                const data = await response.json();
+                setProducts(data);
+            } catch (error) {
+                console.error("Erro ao buscar produtos filtrados:", error);
+                setProducts([]); // Limpa os produtos em caso de erro
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        // Não buscamos os dados iniciais de novo, apenas quando um filtro muda.
+        if (activeFilter !== 'all' || searchQuery.trim()) {
+            fetchFilteredProducts();
+        } else {
+            // Se nenhum filtro está ativo, voltamos aos produtos iniciais.
+            setProducts(initialProducts);
+        }
     }, [initialProducts, activeFilter, searchQuery]);
-
-    const handleSearchSubmit = (e) => {
-        e.preventDefault();
-        // A busca já acontece em tempo real enquanto o usuário digita
-    };
 
     // O return (JSX) continua o mesmo, mas agora é mais rápido
     return (
         <div className="container mx-auto px-4 py-8">
-            {/* Hero Section e Barra de Busca */}
             <div className="text-center mb-12">
-                {/* ... (seu JSX da Hero Section aqui) ... */}
             </div>
 
             <CommunityLinks />
@@ -94,12 +88,20 @@ export default function Home({ initialProducts }) {
 
             {/* Grid de Produtos */}
             <AnimatePresence>
-                {filteredProducts.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
-                        {filteredProducts.map((product) => (
+                {loading ? (
+                    <div className="flex items-center justify-center h-64">
+                        <Loader2 className="w-12 h-12 animate-spin text-blue-600" />
+                    </div>
+                ) : products.length > 0 ? (
+                    <motion.div
+                      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                    >
+                        {products.map((product) => (
                             <motion.div
                                 key={product.id}
-                                layout // Anima a posição quando os filtros mudam
+                                layout
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.9 }}
@@ -108,7 +110,7 @@ export default function Home({ initialProducts }) {
                                 <ProductCard product={product} />
                             </motion.div>
                         ))}
-                    </div>
+                    </motion.div>
                 ) : (
                     <div className="text-center py-16">
                          <Zap className="w-16 h-16 text-gray-400 mx-auto mb-4" />
