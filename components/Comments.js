@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2, MessageSquare, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function Comments({ productId }) {
     const [comments, setComments] = useState([]);
@@ -38,20 +39,29 @@ export default function Comments({ productId }) {
 
         setSubmitting(true);
         try {
-            // A API agora usa o token do usuário para identificá-lo
-            await fetch(`/api/comments/${productId}`, {
-                method: 'POST',
-                headers : {'Content-Type': 'application/json' },
-                // Não é mais necessário enviar o user_name
-                body: JSON.stringify({ content: newComment }),
-            });
-            setNewComment('');
-            loadComments(); // Recarrega os comentários para exibir o novo
-        } catch (error) {
-            console.error('Erro ao enviar comentário:', error);
+        // Pega a sessão atual para obter o token de acesso
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (!session) {
+            throw new Error("Utilizador não autenticado.");
         }
-        setSubmitting(false);
-    };
+
+        await fetch(`/api/comments/${productId}`, {
+            method: 'POST',
+            //  Adiciona o cabeçalho de Autorização
+            headers : {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify({ content: newComment }),
+        });
+        setNewComment('');
+        loadComments();
+    } catch (error) {
+        console.error('Erro ao enviar comentário:', error);
+    }
+    setSubmitting(false);
+};
 
     const addEmoji = (emoji) => {
         setNewComment(prev => prev + emoji);
