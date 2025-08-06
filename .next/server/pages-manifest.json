@@ -2,13 +2,5 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/Categories": "pages/Categories.js",
-  "/": "pages/index.js",
-  "/Recent": "pages/Recent.js",
-  "/profile": "pages/profile.js",
-  "/Featured": "pages/Featured.js",
-  "/api/products": "pages/api/products.js",
-  "/Alerts": "pages/Alerts.js",
-  "/Coupons": "pages/Coupons.js",
-  "/Login": "pages/Login.js"
+  "/": "pages/index.js"
 }
