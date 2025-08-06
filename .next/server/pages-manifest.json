@@ -4,7 +4,11 @@
   "/_document": "pages/_document.js",
   "/Categories": "pages/Categories.js",
   "/": "pages/index.js",
-  "/api/products": "pages/api/products.js",
+  "/Recent": "pages/Recent.js",
+  "/profile": "pages/profile.js",
   "/Featured": "pages/Featured.js",
+  "/api/products": "pages/api/products.js",
+  "/Alerts": "pages/Alerts.js",
+  "/Coupons": "pages/Coupons.js",
   "/Login": "pages/Login.js"
 }

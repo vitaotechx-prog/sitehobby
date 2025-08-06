@@ -8,9 +8,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils'; // Importe o utilitário cn
+import { cn } from '@/lib/utils'; 
 
-// Lista de avatares que você colocou na pasta public/avatars
+// Lista de avatares
 const availableAvatars = [
     '/avatars/avatar1.png',
     '/avatars/avatar2.png',
@@ -33,7 +33,7 @@ const availableAvatars = [
 
 
 export default function ProfilePage() {
-    // 2. Extraia a função `fetchProfile` do contexto.
+    // 2. Extrair a função `fetchProfile` do contexto.
     const { user, profile, fetchProfile } = useAuth();
     const router = useRouter();
 
@@ -78,8 +78,7 @@ export default function ProfilePage() {
             setMessage(`Erro ao atualizar: ${error.message}`);
         } else {
             setMessage('Perfil atualizado com sucesso!');
-            // AQUI ESTÁ A MUDANÇA
-            // Forçamos a busca e esperamos o retorno dos novos dados.
+      
             const updatedProfile = await fetchProfile(user);
             if (updatedProfile) {
                 // Sincronizamos o estado local com os novos dados do contexto
@@ -90,7 +89,6 @@ export default function ProfilePage() {
         setLoading(false); // Remove o loading do botão
     }
     
-    // O resto da lógica de loading e o return continuam...
     if (loading) {
       return (
             <div className="flex items-center justify-center h-screen">
@@ -129,7 +127,7 @@ export default function ProfilePage() {
                                         : ''
                                 )}
                             >
-                                {/* AQUI ESTÁ A MUDANÇA PRINCIPAL: Tamanho explícito na imagem */}
+                                {/* Tamanho explícito na imagem */}
                                 <img
                                     src={url}
                                     alt={`Avatar ${url}`}
