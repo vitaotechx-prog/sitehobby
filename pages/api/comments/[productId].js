@@ -16,11 +16,18 @@ export default async function handler(req, res) {
 
   if (req.method === 'POST') {
   // 1. Obter o usuário autenticado
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  const token = req.headers.authorization?.split('Bearer ')[1];
 
-  if (userError || !user) {
-    return res.status(401).json({ error: 'Acesso não autorizado.' });
-  }
+  if (!token) {
+        return res.status(401).json({ error: 'Token de autenticação não fornecido.' });
+    }
+
+    // 2. Usa o token para obter os dados do utilizador
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+
+    if (userError || !user) {
+      return res.status(401).json({ error: 'Acesso não autorizado ou token inválido.' });
+    }
 
   // 2. Usar o ID do usuário para criar o comentário
   const { content } = req.body; // Apenas o conteúdo é necessário do corpo da requisição
