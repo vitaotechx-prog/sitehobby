@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     const { data, error } = await supabase
       .from('comments')
-      .select('*')
+      .select('*, profiles ( full_name )')
       .eq('product_id', productId) // Filtra comentários pelo ID do produto
       .order('created_at', { ascending: false });
 
