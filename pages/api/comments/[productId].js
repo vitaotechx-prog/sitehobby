@@ -40,7 +40,13 @@ export default async function handler(req, res) {
         // O user_name será associado via JOIN com a tabela profiles na hora de buscar os comentários
     }]);
 
-  if (error) return res.status(500).json({ error: error.message });
-  return res.status(201).json(data);
+  if (error) {
+        // Para uma melhor depuração, podemos ver o erro do Supabase no log do servidor
+        console.error('Erro do Supabase ao inserir comentário:', error);
+        return res.status(500).json({ error: error.message });
+    }
+    
+    // Retornamos um status 201 (Created) com uma mensagem de sucesso.
+    return res.status(201).json({ message: 'Comentário criado com sucesso!' });
   }
 }
