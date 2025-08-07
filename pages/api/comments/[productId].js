@@ -19,34 +19,29 @@ export default async function handler(req, res) {
   const token = req.headers.authorization?.split('Bearer ')[1];
 
   if (!token) {
-        return res.status(401).json({ error: 'Token de autenticação não fornecido.' });
+        return res.status(401).json({ error: 'Token não fornecido.' });
     }
 
-    // 2. Usa o token para obter os dados do utilizador
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
-
-    if (userError || !user) {
-      return res.status(401).json({ error: 'Acesso não autorizado ou token inválido.' });
-    }
-
-  // 2. Usar o ID do usuário para criar o comentário
-  const { content } = req.body; // Apenas o conteúdo é necessário do corpo da requisição
-  const { data, error } = await supabase
-    .from('comments')
-    .insert([{
-        product_id: productId,
-        content,
-        user_id: user.id // <<-- Usar o ID do usuário da sessão
-        // O user_name será associado via JOIN com a tabela profiles na hora de buscar os comentários
-    }]);
-
-  if (error) {
-        // Para uma melhor depuração, podemos ver o erro do Supabase no log do servidor
-        console.error('Erro do Supabase ao inserir comentário:', error);
-        return res.status(500).json({ error: error.message });
-    }
+    // Criamos um cliente Supabase autenticado com o token do utilizador
+    const supabaseAuthed = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+        { global: { headers: { Authorization: `Bearer ${token}` } } }
+    );
     
-    // Retornamos um status 201 (Created) com uma mensagem de sucesso.
+    const { content } = req.body;
+
+    // AQUI ESTÁ A MUDANÇA: Chamamos a nossa função 'create_new_comment' via RPC
+    const { error } = await supabaseAuthed.rpc('create_new_comment', {
+      product_id_in: productId,
+      content_in: content
+    });
+
+    if (error) {
+        console.error('Erro ao chamar RPC create_new_comment:', error);
+        return res.status(500).json({ error: 'Erro ao guardar o comentário.', details: error.message });
+    }
+
     return res.status(201).json({ message: 'Comentário criado com sucesso!' });
   }
 }
