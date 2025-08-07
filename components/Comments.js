@@ -124,12 +124,12 @@ export default function Comments({ productId }) {
                                     className="flex gap-4 items-start"
                                 >
                                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center font-bold text-gray-600">
-                                        {/* Agora você precisaria buscar o nome do perfil associado ao user_id */}
-                                        {comment.user_name ? comment.user_name.charAt(0).toUpperCase() : 'U'}
+                                        {/* Usamos a primeira letra do nome do perfil */}
+                                        {comment.profiles?.full_name?.charAt(0).toUpperCase() || 'U'}
                                     </div>
                                     <div className="flex-1 bg-white p-4 rounded-xl shadow-sm border">
                                         <div className="flex justify-between items-center mb-1">
-                                            <p className="font-semibold text-gray-900">{comment.user_name || 'Usuário'}</p>
+                                            <p className="font-semibold text-gray-900">{comment.profiles?.full_name || 'Usuário'}</p>
                                             <p className="text-xs text-gray-500">
                                                 {new Date(comment.created_at).toLocaleDateString('pt-BR')}
                                             </p>
