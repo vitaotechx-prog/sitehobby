@@ -1,3 +1,4 @@
+import { createClient } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabaseClient';
 
 export default async function handler(req, res) {
@@ -31,7 +32,7 @@ export default async function handler(req, res) {
     
     const { content } = req.body;
 
-    // AQUI ESTÁ A MUDANÇA: Chamamos a nossa função 'create_new_comment' via RPC
+    //Chamamos a nossa função 'create_new_comment' via RPC
     const { error } = await supabaseAuthed.rpc('create_new_comment', {
       product_id_in: productId,
       content_in: content
@@ -44,4 +45,7 @@ export default async function handler(req, res) {
 
     return res.status(201).json({ message: 'Comentário criado com sucesso!' });
   }
+  // Adicionei esta linha para responder a outros métodos que não sejam GET ou POST
+  res.setHeader('Allow', ['GET', 'POST']);
+  res.status(405).end(`Method ${req.method} Not Allowed`);
 }
