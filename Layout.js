@@ -201,6 +201,7 @@ export default function Layout({ children }) {
 
             {/* Main Content */}
             <main className="flex-grow container mx-auto px-4">
+            
                 {children}
             </main>
 

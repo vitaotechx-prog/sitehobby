@@ -47,9 +47,10 @@ export default function ShareButton({ productName, productUrl }) {
       onClick={handleShare}
       variant="ghost" // 'ghost' para um visual mais sutil
       size="icon"     // 'icon' para um botão pequeno e quadrado
-      className="h-8 w-8" // Ajusta o tamanho
+      className="rounded-full bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-7 text-white rounded-x1 shadow-lg transition-transform hover:scale-105  ease-in-out" 
       title="Compartilhar oferta" // Dica de ferramenta
     >
+    
       {copied ? (
         <Check className="w-4 h-4 text-green-500" />
       ) : (
