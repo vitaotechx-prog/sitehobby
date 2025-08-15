@@ -12,39 +12,58 @@ import {
     Grid3X3,
     Drill,
     ShoppingBasket,
-    Rocket
+    Rocket,
+    Dog,
+    Cat,
+    HardDrive,
+    ShoppingBasket,
+    Github ,
+    LucideSmartphone
+    
 } from "lucide-react";
 
 export const categoryIcons = {
     eletronicos: Smartphone,
     eletrodomesticos: Tv2,
+    hardware: HardDrive,
+    games: Gamepad2,
     casa: Home,
-    moda: Shirt,
+    acessorios: Shirt,
+    "moda feminina": Cat,
+    "moda masculina": Dog,
     esporte: Dumbbell,
     "saude e beleza": Sparkles,
     livros: BookOpen,
-    games: Gamepad2,
     automotivo: Car,
     ferramentas: Drill,
     brinquedos: Rocket,
     mercado: ShoppingBasket,
     infantil: Baby,
+    mercado: ShoppingBasket,
+    pet: Github,
+    smartphone: LucideSmartphone,
     outros: Grid3X3
 };
 
 export const categoryLabels = {
     eletronicos: "Eletrônicos",
     eletrodomesticos : "Eletrodomésticos",
+    hardware: "Hardware",
+    games: "Games",
     casa: "Casa",
-    moda: "Moda",
+    acessorios: "Acessorios",
+    "moda feminina": "Moda Feminina",
+    "moda masculina": "Moda Masculina",
     esporte: "Esporte",
     "saude e beleza": "Saúde e Beleza",
     livros: "Livros",
-    games: "Games",
     brinquedos: "Brinquedos",
     mercado: "Mercado",
     infantil: "Infantil",
     automotivo: "Automotivo",
     ferramentas: "Ferramentas",
+    mercado: "Mercado",
+    pet: "Pet",
+    smartphone: "Smartphone",
     outros: "Outros"
 };
