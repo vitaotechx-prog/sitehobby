@@ -16,7 +16,6 @@ import {
     Dog,
     Cat,
     HardDrive,
-    ShoppingBasket,
     Github ,
     LucideSmartphone
     
@@ -39,7 +38,6 @@ export const categoryIcons = {
     brinquedos: Rocket,
     mercado: ShoppingBasket,
     infantil: Baby,
-    mercado: ShoppingBasket,
     pet: Github,
     smartphone: LucideSmartphone,
     outros: Grid3X3
@@ -62,7 +60,6 @@ export const categoryLabels = {
     infantil: "Infantil",
     automotivo: "Automotivo",
     ferramentas: "Ferramentas",
-    mercado: "Mercado",
     pet: "Pet",
     smartphone: "Smartphone",
     outros: "Outros"
